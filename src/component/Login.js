@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "../componentStyle/Login.css";
 import Register from "./Register";
-export default function Login({ setLoggedIn,creds,setCreds }) {
+export default function Login({ setLoggedIn, creds, setCreds }) {
   const [register, setRegister] = useState(false);
   return !register ? (
     <div className="container">
@@ -10,22 +10,23 @@ export default function Login({ setLoggedIn,creds,setCreds }) {
         onSubmit={(e) => {
           e.preventDefault();
           fetch("http://localhost:3000/login", {
-            method: 'POST',
+            method: "POST",
             headers: {
-                "Content-Type": "application/json",
+              "Content-Type": "application/json",
             },
             body: JSON.stringify(creds),
           })
-            .then((res) => res.json())
-            .then((res) => {
-              console.log(res, creds);
-              if (res) {
-                setLoggedIn(res);
-              }
-              else{
-                alert('wrong username or password')
-              }
-            });
+          .then(res=>res.json())
+          .then((res) => {
+            let jwt = res.jwt;
+            if (jwt) {
+              setLoggedIn(true);
+              console.log(res, res);
+              localStorage.setItem("jwt", jwt);
+            } else {
+              alert("wrong username or password");
+            }
+          });
         }}
       >
         <label>username</label>
