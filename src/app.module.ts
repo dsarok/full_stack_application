@@ -5,11 +5,17 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from './app.entity';
 import { Messages } from './message.entity';
+import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     ConfigModule.forRoot({isGlobal:true}),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule,
+        JwtModule.register({
+          global: true,
+          secret: process.env.SECRET,
+          signOptions: { expiresIn: 5*60*1000 },
+        }),],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get('DB_HOST'),

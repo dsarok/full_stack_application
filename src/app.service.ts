@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from './app.entity';
 import { Messages } from './message.entity';
+import { JwtService } from '@nestjs/jwt';
+
 @Injectable()
 export class AppService {
   @InjectRepository(Users)
@@ -10,15 +12,23 @@ export class AppService {
 
   @InjectRepository(Messages)
   private readonly messageRepository: Repository<Messages>;
+  constructor(private jwtService: JwtService) {}
 
-  authenticate(body: { username: string; password: string }): Promise<boolean> {
-    return this.repository
-      .findOne({ where: { username: body.username, password: body.password } })
-      .then((res) => {
-        if (res) {
-          return true;
-        } else return false;
+  async authenticate(body: {
+    username: string;
+    password: string;
+  }): Promise<any> {
+    console.log('body getting ', body)
+    const res = await this.repository.findOne({
+      where: { username: body.username, password: body.password },
+    });
+    if (res) {
+      let sign = await this.jwtService.signAsync({
+        username: res.username
       });
+      console.log(res)
+      return sign;
+    } else return false;
   }
 
   async register(body: {
