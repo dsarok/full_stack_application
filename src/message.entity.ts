@@ -15,5 +15,7 @@ export class Messages {
     @Column()
     date:Date
 
+    @ManyToMany(()=>Users,(users)=>users.id)
+    users:Users[]
    
 }
