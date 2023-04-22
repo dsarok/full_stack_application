@@ -25,26 +25,24 @@ export class AppController {
    
     if(body.username && body.password)
       {
-        let jwt = await this.appService.authenticate(body);
-        if (jwt) {
-        response.cookie('jwt', jwt, { httpOnly: true });
-        return true;
-        } else return false;
+        return await this.appService.authenticate(body);
+       
       }
       else{
         return false;
       }
   }
   
-  @Get('/authorise')
-  async authorise(@Req() request:Request){
-    let verified = request.cookies['jwt'];
-    console.log(verified)
-    if (verified) {
-      let verify = await this.jwtService.verifyAsync(verified)
+  @Get('/authorise/:jwt')
+  async authorise(@Req() request:Request,@Param('jwt') jwt:string){
+
+    let cookie = jwt;
+    console.log(cookie,"get verification")
+    if (cookie) {
+      let verify = await this.jwtService.verifyAsync(cookie)
       console.log(verify)
       if (verify) {
-        return this.jwtService.decode(verified)
+        return this.jwtService.decode(cookie)
       }
       else
       return false;

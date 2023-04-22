@@ -26,8 +26,8 @@ export class AppService {
       let sign = await this.jwtService.signAsync({
         username: res.username
       });
-      console.log(res)
-      return sign;
+      
+      return {jwt:sign};
     } else return false;
   }
 
