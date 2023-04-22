@@ -1,23 +1,16 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from './app.entity';
-interface message {
-  subject: string;
-  message: string;
-  date: Date;
-  id: string;
-}
-interface users{
-  username:string,
-  password:string,
-  id:string
-}
+import { Messages } from './message.entity';
 @Injectable()
 export class AppService {
 
   @InjectRepository(Users)
   private readonly repository: Repository<Users>
+
+  @InjectRepository(Messages)
+  private readonly messageRepository: Repository<Messages>
 
   authenticate(body: { username: string; password: string }): Promise<boolean> {
     return (
@@ -53,21 +46,40 @@ export class AppService {
     return false
   }
 
-  sendMessage(): boolean {
+  sendMessage(): Promise<boolean> {
     const date = new Date();
     console.log('getting some messages');
-    // this.messages.push({
-    //   subject: 'subject is this',
-    //   message: 'hello world is this message is received',
-    //   date,
-    //   id: this.messages.length.toString(),
-    // });
-    // console.log(this.messages);
-    return true;
+    let message=new Messages()
+    message.body='Greetings Please Submit Your Report Today'
+    message.date=date
+    message.subject='performance of every one'
+    return this.messageRepository.save(message).then(res=> res?true:false)
   }
 
-  emailFromId(id: string): message{
-    // return this.messages.find(e=>e.id===id);
-    return 
+  fetchEmails():Promise<Messages[]>{
+    return this.messageRepository.find()
+  }
+
+  emailFromId(id: string): Promise<Messages>{
+    return this.messageRepository.findOne({where:{id:id}});
   };
+
+  async readMessages(id:string,user:string):Promise<any>{
+    let ourUser = await this.repository.findOne({where:{username:user},relations:{
+      messages:true
+    }}).then(res=>{
+      console.log(res.messages)
+      return res})
+    
+    let message = await this.messageRepository.findOne({where:{id:id}}).then(res=>res)
+    console.log(ourUser,message,'this is check',ourUser.messages)
+    ourUser.messages=ourUser.messages?[...ourUser.messages,message]:[message]
+    this.repository.save(ourUser) 
+    return message
+  }
+
+  async readEmails(user:string):Promise<Messages[]>{
+   const res = await this.repository.findOne({ where: { username: user } });
+    return res.messages;
+  }
 }

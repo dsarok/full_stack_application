@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { Users } from './app.entity';
 import { AppService } from './app.service';
+import { Messages } from './message.entity';
 
 @Controller()
 export class AppController {
@@ -24,20 +24,22 @@ export class AppController {
   }
 
   @Get('/pushemail')
-  sendEmail():boolean{
-    this.appService.sendMessage()
-    return true
+  sendEmail(): Promise<boolean>{
+    return this.appService.sendMessage()
   }
 
   @Get('/getemails')
-  getEmail():any[]{
-    return ["this.appService.messages"]
+  getEmail():Promise<Messages[]>{
+    return this.appService.fetchEmails()
   }
 
-  @Get('/:id')
-  getEmailFromId(@Param('id') id:string):any{
-    console.log(id,this.appService.emailFromId(id))
-    return this.appService.emailFromId(id)
+  @Get('/:id/:user/')
+  userOpenendEmail(@Param('id') id:string,@Param('user') user:string):any{
+    return this.appService.readMessages(id,user);
   }
 
+  @Get('/:username')
+  getMessageList(@Param('username') user:string){
+    return this.appService.readEmails(user)
+  }
 }

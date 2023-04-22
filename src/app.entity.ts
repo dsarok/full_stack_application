@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Messages } from './message.entity';
 
 @Entity()
 export class Users {
@@ -10,4 +11,8 @@ export class Users {
 
     @Column({nullable:false})
     password:string
+
+    @ManyToMany(()=>Messages,(messages)=>messages.id)
+    @JoinTable()
+    messages: Messages[]
 }

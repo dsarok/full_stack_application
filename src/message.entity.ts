@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Users } from './app.entity';
 
 @Entity()
 export class Messages {
@@ -13,4 +14,6 @@ export class Messages {
 
     @Column()
     date:Date
+
+   
 }
