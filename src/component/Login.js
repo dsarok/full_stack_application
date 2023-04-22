@@ -1,89 +1,55 @@
-import { useState } from "react";
-export function Login({setLoggedIn}) {
-  const [creds, setCreds] = useState({ username: "", password: "" });
-  return (
-    <>
-      <h2 style={{ textAlign: "center" }}>Login Form</h2>
-      <div
-        style={{
-          display: "flex",
-          height: "100vh",
-          width: "100vw",
-          justifyContent: "center",
-          alignItems: "center"
+import React, { useState } from "react";
+import "../componentStyle/Login.css";
+import Register from "./Register";
+export default function Login({ setLoggedIn,creds,setCreds }) {
+  const [register, setRegister] = useState(false);
+  return !register ? (
+    <div className="container">
+      <form
+        className="login-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          fetch("http://localhost:3000/login", {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(creds),
+          })
+            .then((res) => res.json())
+            .then((res) => {
+              console.log(res, creds);
+              if (res) {
+                setLoggedIn(res);
+              }
+              else{
+                alert('wrong username or password')
+              }
+            });
         }}
       >
-        <div
-          style={{
-            height: "45%",
-            width: "60%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center"
+        <label>username</label>
+        <input
+          placeholder="user@email.com"
+          onChange={(e) => {
+            setCreds((p) => ({ ...p, username: e.target.value }));
           }}
-        >
-          <div
-            style={{
-              marginBottom: "40px",
-              width: "100%",
-              display: "flex",
-              justifyContent: "center"
-            }}
-          >
-            <input
-              placeholder={"username"}
-              style={{
-                borderWidth: "0px 0px 2px 0px",
-                width: "80%",
-                fontSize: 20
-              }}
-              onChange={(e) => {
-                setCreds((c) => ({ ...c, username: e.target.value }));
-              }}
-            />
-          </div>
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-              marginBottom: 40
-            }}
-          >
-            <input
-              placeholder={"password"}
-              style={{
-                borderWidth: "0px 0px 2px 0px",
-                width: "80%",
-                fontSize: 20
-              }}
-              onChange={(e) => {
-                setCreds((c) => ({ ...c, password: e.target.value }));
-              }}
-            />
-          </div>
-          <div style={{ width: "100%", textAlign: "center" }}>
-            <button
-              style={{ height: "30px", width: "80%" }}
-              onClick={() => {
-                fetch("http://localhost:3000/login",{
-                    method:'POST',
-                    body:JSON.stringify(creds),
-                    headers:{
-                        "Content-Type": "application/json",
-                    }
-                })
-                  .then((res) => res.json())
-                  .then(res=>setLoggedIn(res))
-                  .catch((err) => console.log(err));
-              }}
-            >
-              Submit
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
+        />
+        <label>password</label>
+        <input
+          placeholder="password"
+          type={"password"}
+          onChange={(e) => {
+            setCreds((p) => ({ ...p, password: e.target.value }));
+          }}
+        />
+        <button type="submit">Log In</button>
+      </form>
+      <button className="link-bottom" onClick={(e) => setRegister(true)}>
+        don't have an account? Register Now
+      </button>
+    </div>
+  ) : (
+    <Register setRegister={setRegister} />
   );
 }
