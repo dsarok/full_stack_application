@@ -18,16 +18,16 @@ export class AppService {
     username: string;
     password: string;
   }): Promise<any> {
-    console.log('body getting ', body)
+    console.log('body getting ', body);
     const res = await this.repository.findOne({
       where: { username: body.username, password: body.password },
     });
     if (res) {
       let sign = await this.jwtService.signAsync({
-        username: res.username
+        username: res.username,
       });
-      
-      return {jwt:sign};
+
+      return { jwt: sign };
     } else return false;
   }
 
@@ -69,6 +69,7 @@ export class AppService {
   }
 
   fetchEmails(): Promise<Messages[]> {
+    console.log('values of email being extracted');
     return this.messageRepository.find();
   }
 
@@ -108,5 +109,18 @@ export class AppService {
       },
     });
     return res.messages;
+  }
+
+  async authorize(jwt: string) {
+    if (jwt) {
+      let verify = await this.jwtService.verifyAsync(jwt);
+      console.log(verify, ' this is the verification ');
+      if (verify) {
+        let decode = this.jwtService.decode(jwt);
+        console.log(decode, ' decoded ');
+        return decode;
+      } else return false;
+    }
+    return false;
   }
 }

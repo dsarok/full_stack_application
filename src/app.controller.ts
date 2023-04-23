@@ -1,6 +1,15 @@
-import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { AppService } from './app.service';
 import { Messages } from './message.entity';
 
@@ -20,34 +29,18 @@ export class AppController {
   @Post('/login')
   async authentication(
     @Body() body: { username: string; password: string },
-    @Res({ passthrough: true }) response: Response,
   ): Promise<any> {
-   
-    if(body.username && body.password)
-      {
-        return await this.appService.authenticate(body);
-       
-      }
-      else{
-        return false;
-      }
-  }
-  
-  @Get('/authorise/:jwt')
-  async authorise(@Req() request:Request,@Param('jwt') jwt:string){
-
-    let cookie = jwt;
-    console.log(cookie,"get verification")
-    if (cookie) {
-      let verify = await this.jwtService.verifyAsync(cookie)
-      console.log(verify)
-      if (verify) {
-        return this.jwtService.decode(cookie)
-      }
-      else
+    if (body.username && body.password) {
+      console.log(body);
+      return await this.appService.authenticate(body);
+    } else {
       return false;
     }
-    return false;
+  }
+
+  @Get('/authorise/:jwt')
+  async authorise(@Req() req:Request) {
+   return req.body.jwt
   }
 
   @Post('/register')
@@ -57,22 +50,23 @@ export class AppController {
     return this.appService.register(body);
   }
 
-  @Get('/pushemail')
+  @Get('/pushemail/:jwt')
   sendEmail(): Promise<boolean> {
     return this.appService.sendMessage();
   }
 
-  @Get('/getemails')
+  @Get('/getemails/:jwt')
   getEmail(): Promise<Messages[]> {
+    console.log('values of email')
     return this.appService.fetchEmails();
   }
 
-  @Get('/:id/:user/')
+  @Get('/:id/:user/:jwt')
   userOpenendEmail(@Param('id') id: string, @Param('user') user: string): any {
     return this.appService.readMessages(id, user);
   }
 
-  @Get('/:username')
+  @Get('/:username/:jwt')
   getMessageList(@Param('username') user: string) {
     return this.appService.readEmails(user);
   }
