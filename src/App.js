@@ -7,10 +7,12 @@ function App() {
   const [creds, setCreds] = useState({ username: "", password: "" });
 
   useEffect(() => {
-    console.log("value is being printed");
     let jwt = localStorage.getItem("jwt");
     if (jwt === null) return;
-    fetch(`http://localhost:3000/authorise/${jwt}`)
+    fetch(`http://localhost:3000/authorise/`+
+    new URLSearchParams({
+      jwt: jwt
+    }))
       .then((res) => res.json())
       .then((res) => {
         if (res !== false) {
@@ -23,7 +25,7 @@ function App() {
   }, []);
 
   return loggedin ? (
-    <Loggedin creds={creds} />
+    <Loggedin creds={creds} setLoggedIn={setLoggedIn}/>
   ) : (
     <Login setLoggedIn={setLoggedIn} setCreds={setCreds} creds={creds} />
   );

@@ -3,17 +3,22 @@ import { Link, Route, Routes } from "react-router-dom";
 import "../componentStyle/Loggedin.css";
 import Fullemail from "./Fullemail";
 
-export default function Loggedin({creds}) {
+export default function Loggedin({ creds ,setLoggedIn}) {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:3000/getemails")
+    let jwt = localStorage.getItem("jwt");
+    fetch(
+      "http://localhost:3000/getemails/" +
+        new URLSearchParams({
+          jwt: jwt,
+        })
+    )
       .then((res) => res.json())
       .then((res) => {
         setMessages(res);
         console.log(res);
       });
-
   }, []);
 
   function Bar({ data }) {
@@ -32,6 +37,10 @@ export default function Loggedin({creds}) {
   function Consize() {
     return (
       <div>
+      <button onClick={()=>{
+        localStorage.removeItem('jwt')
+        setLoggedIn(false)
+    }}>Logout</button>
         <h1 className="bar" style={{ backgroundColor: "white" }}>
           Emails
         </h1>
@@ -45,7 +54,7 @@ export default function Loggedin({creds}) {
   return (
     <Routes>
       <Route path="/" element={<Consize />} />
-      <Route path="/:id" element={<Fullemail creds={creds}/>} />
+      <Route path="/:id" element={<Fullemail creds={creds} />} />
     </Routes>
   );
 }
